@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.angular/
+.cache/
+coverage/
+*.log
+.env
+backend/.env
+.DS_Store
+Thumbs.db
+*.zip
+.test-mysql-data/
+.e2e-chrome/
+

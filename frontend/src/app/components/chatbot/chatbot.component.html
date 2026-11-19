@@ -1,0 +1,34 @@
+<button class="chat-trigger" type="button" (click)="toggle()" [attr.aria-label]="ui['chat_open_aria']" [attr.aria-expanded]="open()">
+  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+  <span>{{ ui['chat_button'] }}</span>
+</button>
+
+@if (open()) {
+  <section class="chat-panel" role="dialog" [attr.aria-label]="ui['chat_panel_aria']">
+    <header>
+      <div><span class="status-dot"></span><strong>{{ ui['chat_title'] }}</strong><small>{{ ui['chat_status'] }}</small></div>
+      <button type="button" (click)="toggle()" [attr.aria-label]="ui['chat_close_aria']">×</button>
+    </header>
+    <div class="messages" aria-live="polite">
+      @for (message of messages(); track message.id) {
+        <p [class.user]="message.sender === 'user'" [class.error]="message.error">{{ message.text }}</p>
+      }
+      @if (messages().length === 1) {
+        <div class="suggestions">
+          @for (key of ['chat_suggestion_1', 'chat_suggestion_2', 'chat_suggestion_3']; track key) {
+            <button type="button" (click)="ask(ui[key])">{{ ui[key] }}</button>
+          }
+        </div>
+      }
+      @if (waiting()) { <div class="typing" [attr.aria-label]="ui['chat_typing_aria']"><i></i><i></i><i></i></div> }
+      @if (lastFailedQuery() && !waiting()) {
+        <button class="retry" type="button" (click)="retry()">{{ ui['chat_retry'] }}</button>
+      }
+    </div>
+    <form [formGroup]="form" (ngSubmit)="ask()">
+      <input #chatInput formControlName="message" [placeholder]="ui['chat_placeholder']" [attr.aria-label]="ui['chat_input_aria']">
+      <button type="submit" [disabled]="input.invalid || waiting()" [attr.aria-label]="ui['chat_send_aria']">↗</button>
+    </form>
+  </section>
+}
+

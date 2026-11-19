@@ -1,0 +1,123 @@
+@if (site(); as data) {
+  <header class="topbar">
+    <a class="brand" href="#inicio" (click)="scrollTo('inicio'); $event.preventDefault()" [attr.aria-label]="data.ui['brand_home_aria']">
+      <span class="brand-mark" aria-hidden="true">{{ data.settings['brand_mark'] }}</span>
+      <span><strong>{{ data.settings['brand_name'] }}</strong><small>{{ data.settings['brand_tagline'] }}</small></span>
+    </a>
+    <button class="menu-toggle" type="button" (click)="mobileMenu.update(v => !v)" [attr.aria-label]="data.ui['menu_toggle_aria']" [attr.aria-expanded]="mobileMenu()">
+      <span></span><span></span>
+    </button>
+    <nav [class.open]="mobileMenu()" [attr.aria-label]="data.ui['main_nav_aria']">
+      @for (item of data.navigation; track item.id) {
+        <a [href]="'#' + item.target" (click)="scrollTo(item.target); $event.preventDefault()">{{ item.label }}</a>
+      }
+    </nav>
+  </header>
+
+  <main>
+    <section id="inicio" class="hero">
+      @if (data.sections['inicio'].media; as video) {
+        @if (!reducedMotion) {
+          <video #heroVideo autoplay muted loop playsinline [poster]="data.settings['hero_poster_url']" [attr.aria-label]="video.altText" (playing)="videoPlaying.set(true)" (pause)="videoPlaying.set(false)">
+            <source [src]="video.url" type="video/mp4">
+          </video>
+        } @else {
+          <img [src]="data.settings['hero_poster_url']" [alt]="data.settings['hero_poster_alt']">
+        }
+      }
+      <div class="hero-shade"></div>
+      <div class="hero-content reveal">
+        <p class="eyebrow">{{ data.sections['inicio'].eyebrow }}</p>
+        <h1>{{ data.sections['inicio'].title }}</h1>
+        <p>{{ data.sections['inicio'].body }}</p>
+        <button class="button light" type="button" (click)="scrollTo(data.sections['inicio'].ctaTarget!)">{{ data.sections['inicio'].ctaLabel }}</button>
+      </div>
+      @if (!reducedMotion) {
+        <button class="video-control" type="button" (click)="toggleVideo()" [attr.aria-label]="videoPlaying() ? data.ui['video_pause_aria'] : data.ui['video_play_aria']">
+          {{ videoPlaying() ? data.ui['video_pause_label'] : data.ui['video_play_label'] }}
+        </button>
+      }
+      <a class="credit" [href]="data.sections['inicio'].media?.creditUrl" target="_blank" rel="noopener">{{ data.sections['inicio'].media?.creditName }}</a>
+    </section>
+
+    <section id="servicios" class="section services">
+      <div class="section-heading">
+        <p class="eyebrow">{{ data.sections['servicios'].eyebrow }}</p>
+        <h2>{{ data.sections['servicios'].title }}</h2>
+        <p>{{ data.sections['servicios'].body }}</p>
+      </div>
+      <div class="service-grid">
+        @for (service of data.services; track service.id; let i = $index) {
+          <article class="service-card" [class.offset]="i % 2 === 1">
+            <div class="image-wrap"><img [src]="service.media.url" [alt]="service.media.altText" loading="lazy"><span>0{{ i + 1 }}</span></div>
+            <h3>{{ service.name }}</h3><p>{{ service.description }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="especialidades" class="section specialties">
+      <div class="section-heading light-heading">
+        <p class="eyebrow">{{ data.sections['especialidades'].eyebrow }}</p>
+        <h2>{{ data.sections['especialidades'].title }}</h2>
+        <p>{{ data.sections['especialidades'].body }}</p>
+      </div>
+      <div class="featured-grid">
+        @for (item of data.featured; track item.id; let first = $first) {
+          <article [class.large]="first">
+            @if (item.media) { <img [src]="item.media.url" [alt]="item.media.altText" loading="lazy"> }
+            <div><span>{{ item.price | currency:data.settings['currency_code']:'symbol-narrow':'1.2-2' }}</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p></div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="nosotros" class="section about">
+      <div class="about-copy">
+        <p class="eyebrow">{{ data.sections['nosotros'].eyebrow }}</p>
+        <h2>{{ data.sections['nosotros'].title }}</h2>
+        <p>{{ data.sections['nosotros'].body }}</p>
+        <dl><div><dt>{{ data.ui['address_label'] }}</dt><dd>{{ data.settings['address'] }}</dd></div><div><dt>{{ data.ui['phone_label'] }}</dt><dd>{{ data.settings['phone'] }}</dd></div></dl>
+        <div class="hours"><strong>{{ data.ui['hours_label'] }}</strong>@for (hour of data.hours; track hour.id) { <p><span>{{ hour.dayLabel }}</span><span>{{ hour.timeLabel }}</span></p> }</div>
+        <small>{{ data.settings['demo_notice'] }}</small>
+      </div>
+      <div class="gallery">
+        @for (image of data.gallery; track image.id; let i = $index) {
+          <figure [class.tall]="i === 0"><img [src]="image.url" [alt]="image.altText" loading="lazy"><figcaption><a [href]="image.creditUrl" target="_blank" rel="noopener">{{ image.creditName }}</a></figcaption></figure>
+        }
+      </div>
+    </section>
+
+    <section id="precios" class="section menu-section">
+      <div class="section-heading">
+        <p class="eyebrow">{{ data.sections['precios'].eyebrow }}</p><h2>{{ data.sections['precios'].title }}</h2><p>{{ data.sections['precios'].body }}</p>
+      </div>
+      <div class="menu-columns">
+        @for (category of data.menu; track category.id) {
+          <article><h3>{{ category.name }}</h3>
+            @for (item of category.items; track item.id) {
+              <div class="menu-item"><div><strong>{{ item.name }}</strong><p>{{ item.description }}</p></div><span>{{ item.price | currency:data.settings['currency_code']:'symbol-narrow':'1.2-2' }}</span></div>
+            }
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="contacto" class="section contact">
+      <div class="contact-intro"><p class="eyebrow">{{ data.sections['contacto'].eyebrow }}</p><h2>{{ data.sections['contacto'].title }}</h2><p>{{ data.sections['contacto'].body }}</p><div class="contact-orbit" aria-hidden="true"><span>✦</span></div></div>
+      <form [formGroup]="contactForm" (ngSubmit)="sendContact()" novalidate>
+        <label>{{ data.ui['contact_name_label'] }}<input formControlName="name" [placeholder]="data.ui['contact_name_placeholder']" autocomplete="name"><small>{{ fieldError('name') }}</small></label>
+        <label>{{ data.ui['contact_email_label'] }}<input formControlName="email" type="email" [placeholder]="data.ui['contact_email_placeholder']" autocomplete="email"><small>{{ fieldError('email') }}</small></label>
+        <label>{{ data.ui['contact_message_label'] }}<textarea formControlName="message" [placeholder]="data.ui['contact_message_placeholder']" rows="5"></textarea><small>{{ fieldError('message') }}</small></label>
+        <button class="button dark" type="submit" [disabled]="sending()">{{ sending() ? data.ui['contact_sending'] : data.ui['contact_submit'] }}</button>
+        @if (contactStatus(); as status) { <p class="form-status" [class.error]="status.type === 'error'" role="status">{{ status.text }}</p> }
+      </form>
+    </section>
+  </main>
+
+  <footer><div class="brand"><span class="brand-mark">{{ data.settings['brand_mark'] }}</span><span><strong>{{ data.settings['brand_name'] }}</strong><small>{{ data.settings['brand_tagline'] }}</small></span></div><p>{{ data.ui['footer_text'] }}</p><a href="#inicio" (click)="scrollTo('inicio'); $event.preventDefault()" [attr.aria-label]="data.ui['back_to_top_aria']">↑</a></footer>
+  <app-chatbot [ui]="data.ui" />
+} @else {
+  <div class="skeleton-page" [class.failed]="loadFailed()" aria-busy="true"><i></i><i></i><i></i><i></i></div>
+}
+
